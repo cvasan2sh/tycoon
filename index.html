@@ -338,6 +338,14 @@ details summary{cursor:pointer}
 .city.por.fog1 .clabel{display:inline!important}
 .city.por .porflag{pointer-events:none}
 #fog .fog-far{opacity:1}
+/* feedback */
+.dockb.fb{opacity:.92}
+.fb-stars{display:flex;gap:6px;margin:.4em 0 .8em}
+.fbstar{font-size:30px;line-height:1;background:none;border:0;color:#d9c9a3;cursor:pointer;min-width:44px;min-height:44px}
+.fbstar.on{color:#f2a51a}
+.fbl{display:block;font-weight:700;font-size:.95em;margin:.5em 0}
+.fbl textarea,.fbl input{display:block;width:100%;box-sizing:border-box;margin-top:.3em;padding:.55em .7em;border:2px solid #e3d2ad;border-radius:12px;font:inherit;font-weight:400;background:#fffaf0}
+.ttnote{font-size:.78em;opacity:.65;margin-top:.8em;text-align:center}
 </style>
 </head>
 <body>
@@ -1759,6 +1767,80 @@ const _clampVBR=clampVB;clampVB=function(){if(!S){_clampVBR();return;}const bb=k
   const s=(b.width||1)/VB.w;const desk=window.innerWidth>900;const right=(desk&&typeof panelOpen!=='undefined'&&panelOpen?520:0)/s;
   if(VB.w+0.5>=bb.w+right)VB.x=clamp(bb.x0+(bb.w+right-VB.w)/2,0,Math.max(0,PROJ.W+right-VB.w));else VB.x=clamp(VB.x,bb.x0,bb.x1+right-VB.w);
   if(VB.h+0.5>=bb.h)VB.y=clamp(bb.y0+(bb.h-VB.h)/2,0,Math.max(0,PROJ.H-VB.h));else VB.y=clamp(VB.y,bb.y0,bb.y1-VB.h);};
+
+// ================= Telemetry + feedback =================
+// PostHog: game events, funnels, feedback answers. Microsoft Clarity: session replays and heatmaps.
+// Both load only on the public site (never in tests, local files or previews), so the data stays clean.
+const TT_CFG={
+  posthogKey:'',                          // phc_... from PostHog → Project settings
+  posthogHost:'https://us.i.posthog.com', // or https://eu.i.posthog.com for an EU project
+  clarityId:'',                           // from Clarity → Settings → Overview
+  hosts:['tycoon.earnedconviction.com'],  // only these hostnames send data
+};
+const TT_ON=(()=>{try{return !window.__TEST__&&location.protocol.startsWith('http')&&TT_CFG.hosts.includes(location.hostname);}catch(e){return false;}})();
+const TT_T0=Date.now();let TT_Q=[];
+function ttLoad(){if(!TT_ON)return;
+  if(TT_CFG.posthogKey){!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once unregister identify alias set_config reset get_distinct_id startSessionRecording stopSessionRecording opt_out_capturing opt_in_capturing".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init(TT_CFG.posthogKey,{api_host:TT_CFG.posthogHost,person_profiles:'identified_only',capture_pageview:true,capture_pageleave:true,autocapture:false,disable_session_recording:true});
+    posthog.register({game:'trade-tycoon',build:'realms-v3'});}
+  if(TT_CFG.clarityId){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",TT_CFG.clarityId);}
+  // ad attribution: keep the landing UTM tags on every event
+  try{const q=new URLSearchParams(location.search);const u={};['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid'].forEach(k=>{if(q.get(k))u[k]=q.get(k);});if(Object.keys(u).length){localStorage.setItem('tt-utm',JSON.stringify(u));}
+    const saved=JSON.parse(localStorage.getItem('tt-utm')||'{}');if(window.posthog&&Object.keys(saved).length)posthog.register(saved);}catch(e){}}
+function ttState(){if(!S)return {};const d=dateOf(S.day);let nw=0;try{nw=Math.round(netWorth());}catch(e){}
+  return {g_year:d.y,g_day:S.day,coins:Math.round(S.coins),net_worth:nw,rep:Math.round(S.rep),title:title(),loc:S.loc,
+    kingdoms:licCount(),discovered:discCount(),can_sail:seaOK(),firms:Object.keys(S.firms||{}).length,cargo_used:Math.round(cargoUsed()),
+    mins_played:Math.round((Date.now()-TT_T0)/60000),mobile:window.innerWidth<900};}
+function track(ev,props){const p=Object.assign({},ttState(),props||{});
+  try{const L=JSON.parse(localStorage.getItem('tt-events')||'[]');L.push([Date.now(),ev,props||{}]);localStorage.setItem('tt-events',JSON.stringify(L.slice(-300)));}catch(e){}
+  if(!TT_ON)return;try{if(window.posthog&&posthog.capture)posthog.capture(ev,p);}catch(e){}
+  try{if(window.clarity){clarity('event',ev);}}catch(e){}}
+ttLoad();
+window.addEventListener('error',e=>track('js_error',{msg:String(e.message).slice(0,200),src:String(e.filename||'').split('/').pop(),line:e.lineno}));
+window.addEventListener('unhandledrejection',e=>track('js_error',{msg:String(e.reason).slice(0,200)}));
+
+// ---------- what players do ----------
+const _ngT=newGame;newGame=function(n){_ngT(n);S.ttRun=(S.ttRun||0)+1;track('game_start',{name_len:(n||'').length});};
+const _buyT=doBuy;doBuy=function(g,n){const b=S.cargo[g]?S.cargo[g].q:0,c0=S.coins;_buyT(g,n);const a=S.cargo[g]?S.cargo[g].q:0;
+  if(a>b)track('trade_buy',{good:g,cls:G[g].cls,city:S.loc,qty:a-b,spent:Math.round(c0-S.coins),max:n>=9999});else track('trade_buy_blocked',{good:g,city:S.loc});};
+const _sellT=doSell;doSell=function(g,n){const cg=S.cargo[g];const b=cg?cg.q:0,cost=cg?cg.cost:0,c0=S.coins;_sellT(g,n);const a=S.cargo[g]?S.cargo[g].q:0;
+  if(b>a){const got=S.coins-c0;track('trade_sell',{good:g,cls:G[g].cls,city:S.loc,qty:b-a,earned:Math.round(got),profit:Math.round(got-cost*(b-a)),broker:!canTrade(S.loc)});}};
+const _goT=startTravel;startTravel=function(dst){const was=!!S.travel;_goT(dst);if(!was&&S.travel)track('travel_start',{from:S.loc,to:dst,days:Math.ceil(S.travel.legs.reduce((a,l)=>a+l.days,0)),sea:S.travel.legs.some(l=>l.mode==='sea'),cargo:Math.round(cargoUsed())});
+  else if(!S.travel)track('travel_blocked',{from:S.loc,to:dst});};
+const _arrT=arrive;arrive=function(){const d=S.travel&&S.travel.dst;const first=d&&!(S.visited||[]).includes(d);_arrT();if(d)track('arrive',{city:d,realm:C[d].k,first_visit:first});};
+const _licT=buyLicence;buyLicence=function(k){const had=owned(k);_licT(k);if(!had&&owned(k))track('kingdom_unlock',{kingdom:k,nth:licCount()});else if(!had)track('kingdom_unlock_blocked',{kingdom:k,standing:vouch(k).s,need:unlockReq().st,fee:unlockReq().fee});};
+const _ctT=checkTitle;checkTitle=function(){const b=S.titleSeen;_ctT();if(b!==undefined&&S.titleSeen>b)track('title_up',{title:title(),idx:S.titleSeen});};
+const _cgT=checkGoals;checkGoals=function(){const b=(S.goalsDone||[]).length;_cgT();(S.goalsDone||[]).slice(b).forEach(id=>track('goal_done',{goal:id,nth:S.goalsDone.indexOf(id)+1}));};
+const _ofT=openFirm;openFirm=function(){const h=!!S.firms[S.loc];_ofT();if(!h&&S.firms[S.loc])track('firm_open',{city:S.loc});};
+const _yrT=yearly;yearly=function(){track('year_end',{year_done:dateOf(S.day).y-1,profit_total:Math.round(S.stats.profit),trades:S.stats.trades});_yrT();};
+const _goverT=gameOver;gameOver=function(){track('game_over',{});_goverT();};
+// every button press, by name (Buy, Set out, Unlock, Court, Rest…)
+Object.keys(ACT).forEach(k=>{const f=ACT[k];ACT[k]=function(x,y,b){if(!['buy','buymax','sell','sellall','go','licence'].includes(k))track('action',{act:k,x:x||null});return f.apply(this,arguments);};});
+// which panels people open, and how long a session lasts
+let ttTab='';const _rdT=renderDock;renderDock=function(){_rdT();if(S&&panelOpen&&S.tab!==ttTab){ttTab=S.tab;track('panel_open',{tab:S.tab});}if(!panelOpen)ttTab='';addFeedbackButton();};
+let ttHidden=false;document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&!ttHidden){ttHidden=true;track('session_pause',{});}else if(document.visibilityState==='visible')ttHidden=false;});
+setInterval(()=>{if(S&&document.visibilityState==='visible')track('heartbeat',{});},120000);
+
+// ---------- feedback ----------
+const FB_ICON='<path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 12h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+function addFeedbackButton(){const d=$('#dock');if(!d||d.querySelector('.dockb.fb'))return;const b=document.createElement('button');b.className='dockb fb';b.setAttribute('aria-label','Send feedback');
+  b.innerHTML=`<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">${FB_ICON}</svg><span>Feedback</span>`;b.onclick=()=>openFeedback('button');d.appendChild(b);}
+function openFeedback(from){track('feedback_open',{from});
+  const html=`<p class="sub">${from==='year1'?'You have traded through your first year. ':''}Two minutes of your thoughts will shape the next version.</p>
+  <div class="fb-stars" role="radiogroup" aria-label="How much are you enjoying it?">${[1,2,3,4,5].map(i=>`<button type="button" class="fbstar" data-v="${i}" aria-label="${i} of 5" onclick="this.parentNode.dataset.v=${i};[...this.parentNode.children].forEach((c,j)=>c.classList.toggle('on',j<${i}))">★</button>`).join('')}</div>
+  <label class="fbl">What confused or annoyed you?<textarea id="fb1" rows="3" maxlength="1500"></textarea></label>
+  <label class="fbl">What would make you play another year?<textarea id="fb2" rows="3" maxlength="1500"></textarea></label>
+  <label class="fbl">Email, if we may follow up (optional)<input id="fb3" type="email" maxlength="120" autocomplete="email"></label>`;
+  modal(from==='year1'?'How was your first year?':'Send feedback',html,[
+    {t:'Send',f:()=>{const st=document.querySelector('.fb-stars');const r={rating:+(st&&st.dataset.v||0),confusing:($('#fb1')||{}).value||'',keep_playing:($('#fb2')||{}).value||'',email:($('#fb3')||{}).value||'',from};
+      if(!r.rating&&!r.confusing.trim()&&!r.keep_playing.trim())return null;
+      track('feedback',r);try{if(TT_ON&&window.posthog&&r.email)posthog.setPersonProperties&&posthog.setPersonProperties({email:r.email});}catch(e){}
+      if(S){S.fbSent=(S.fbSent||0)+1;autosave();}toast('Thank you. Every note is read.');return null;}},
+    {t:'Not now',f:()=>{track('feedback_skip',{from});return null;}}]);}
+// ask once, after the review of the first year
+const _yrFB=yearly;yearly=function(){_yrFB();if(window.__TEST__||!S||S.fbAsked)return;if(dateOf(S.day).y===1521){S.fbAsked=1;openFeedback('year1');}};
+// a plain notice on the title screen
+const _tsT=titleScreen;titleScreen=function(saved){_tsT(saved);track('title_screen',{has_save:!!saved});const c=document.querySelector('.title-card');if(c&&!c.querySelector('.ttnote')){const p=document.createElement('p');p.className='ttnote';p.textContent='We record anonymous gameplay to make the game better.';c.appendChild(p);}};
 
 // ---------- phone: bottom sheet that opens, closes and leaves the map clear ----------
 const isPhone=()=>window.innerWidth<=900;
