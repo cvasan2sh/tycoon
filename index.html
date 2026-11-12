@@ -371,6 +371,8 @@ details summary{cursor:pointer}
 .card.rest .btn{width:100%;margin-top:.45em}
 .restpick{margin-top:.6em;padding:.6em .7em;border-radius:12px;background:#fff6e0}
 .restpick input[type=range]{width:100%;height:44px;accent-color:#e8962a}
+/* tablets: the side panel starts below the top bar so money, cargo and fatigue stay visible */
+@media (min-width:901px) and (max-width:1439px){.app.panel-open aside{top:74px!important;max-height:calc(100% - 84px)}.app.panel-open header.hud{right:96px}}
 </style>
 </head>
 <body>
@@ -1828,6 +1830,25 @@ function restCard(){const f=Math.round(S.fatigue),r=restRate(),full=Math.max(1,M
 const _pTownR=pTown;pTown=function(){let h=_pTownR();if(S.travel)return h;return h.replace(/<div class="card"><h3>Rest<\/h3>[\s\S]*?Wait a month<\/button><\/div><\/div>/,restCard());};
 // travelling: say what the speed button does
 const _travR=travelling;travelling=function(){return _travR().replace(/>(Hurry the days|Fast-forward the journey|Normal speed)<\/button>/,(m,t)=>`>${S.fast?'Normal speed':'Fast-forward ⏩'}</button><p class="sub">${S.fast?'Days are passing quickly.':'Same number of days, they just pass quicker.'}</p>`);};
+
+// ---------- hiring hall: one of each role, say so plainly ----------
+function roleHave(r){return S.crew.filter(c=>c.role===r).length+S.family.members.filter(m=>m.alive&&m.role===r).length;}
+const _pTownHire=pTown;pTown=function(){let h=_pTownHire();if(S.travel)return h;const hs=hiresAt(S.loc);
+  h=h.replace('<h3>Hiring hall</h3>',`<h3>Hiring hall</h3><p class="sub">Your caravan takes <b>one of each role</b>. Crew travel with you and are paid on the 1st of each month.</p>`);
+  hs.forEach(x=>{const full=roleHave(x.role)>=ROLES[x.role].max;if(!full)return;
+    h=h.replace(`<button class="btn sm" data-act="hire" data-x="${x.id}">Hire</button>`,`<span class="chip">You have a ${esc(ROLES[x.role].name.toLowerCase())}</span>`);});
+  return h;};
+
+// ---------- tell the player when a neighbour is ready to be unlocked ----------
+function checkUnlockable(){if(!S||S.travel&&modalOpen())return;S.unlockSeen=S.unlockSeen||{};const r=unlockReq();
+  DATA.kingdoms.filter(k=>!k.free&&frontier(k.id)).forEach(k=>{const v=vouch(k.id);const key=k.id+':'+r.st;if(v.s<r.st||S.unlockSeen[key])return;S.unlockSeen[key]=1;
+    track('kingdom_unlockable',{kingdom:k.id,coins:Math.round(S.coins),fee:r.fee});if(window.__TEST__)return;
+    const ok=S.coins>=r.fee;modal(`${k.name} will trade with you`,`<p>Your standing in <b>${esc(K[v.k].name)}</b> has reached ${v.s}. The merchants of ${esc(k.name)} have heard of your house.</p><p class="sub">${ok?`Unlock it now for ${fmt(r.fee)} varaha to open its roads, towns and goods.`:`The licence costs ${fmt(r.fee)} varaha. You have ${fmt(S.coins)}. Come back to Realms when you have it.`}</p>`,
+      ok?[{t:`Unlock for ${fmt(r.fee)}`,f:()=>()=>buyLicence(k.id)},{t:'Later',f:()=>null}]:[{t:'Understood',f:()=>null}]);});}
+const _dmsU=drawMapState;drawMapState=function(){_dmsU();try{checkUnlockable();}catch(e){}};
+// after an unlock, name the new neighbours that appeared
+const _licN=buyLicence;buyLicence=function(k){const before=new Set(DATA.kingdoms.filter(x=>frontier(x.id)||owned(x.id)).map(x=>x.id));_licN(k);if(!owned(k))return;
+  const fresh=DATA.kingdoms.filter(x=>!before.has(x.id)&&(frontier(x.id)||enterable(x.id))).map(x=>x.name);if(fresh.length){log(`New lands on your border: ${fresh.join(', ')}.`,'y');toast(`New on your border: ${fresh.join(', ')}`);}};
 
 // ================= Telemetry + feedback =================
 // PostHog: game events, funnels, feedback answers. Microsoft Clarity: session replays and heatmaps.
