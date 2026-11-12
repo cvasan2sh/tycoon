@@ -1774,7 +1774,7 @@ const _clampVBR=clampVB;clampVB=function(){if(!S){_clampVBR();return;}const bb=k
 const TT_CFG={
   posthogKey:'',                          // phc_... from PostHog → Project settings
   posthogHost:'https://us.i.posthog.com', // or https://eu.i.posthog.com for an EU project
-  clarityId:'',                           // from Clarity → Settings → Overview
+  clarityId:'zcdx0un28g',                 // from Clarity → Settings → Overview
   hosts:['tycoon.earnedconviction.com'],  // only these hostnames send data
 };
 const TT_ON=(()=>{try{return !window.__TEST__&&location.protocol.startsWith('http')&&TT_CFG.hosts.includes(location.hostname);}catch(e){return false;}})();
@@ -1794,7 +1794,29 @@ function ttState(){if(!S)return {};const d=dateOf(S.day);let nw=0;try{nw=Math.ro
 function track(ev,props){const p=Object.assign({},ttState(),props||{});
   try{const L=JSON.parse(localStorage.getItem('tt-events')||'[]');L.push([Date.now(),ev,props||{}]);localStorage.setItem('tt-events',JSON.stringify(L.slice(-300)));}catch(e){}
   if(!TT_ON)return;try{if(window.posthog&&posthog.capture)posthog.capture(ev,p);}catch(e){}
-  try{if(window.clarity){clarity('event',ev);}}catch(e){}}
+  try{if(window.clarity){clarity('event',ev);const st=ttState();
+    // session-level tags: filter and segment recordings by how far each player got
+    clarity('set','title',String(st.title||''));clarity('set','kingdoms',String(st.kingdoms||1));clarity('set','game_year',String(st.g_year||''));
+    clarity('set','mins_played',String(Math.min(120,st.mins_played||0)));clarity('set','device',st.mobile?'phone':'desktop');
+    if(CL_TAGS[ev])CL_TAGS[ev](props||{});
+    if(CL_KEEP.includes(ev))clarity('upgrade',ev);}}catch(e){}}
+// event-specific tags (Clarity keeps the latest value of each tag per session)
+const CL_KEEP=['feedback','kingdom_unlock','game_over','js_error','title_up','year_end'];
+const CL_TAGS={
+  game_start:()=>clarity('set','started','yes'),
+  trade_sell:p=>{clarity('set','sold','yes');if(p.profit<0)clarity('set','sold_at_loss','yes');},
+  trade_buy:()=>clarity('set','bought','yes'),
+  travel_start:p=>{clarity('set','travelled','yes');if(p.sea)clarity('set','sailed','yes');},
+  kingdom_unlock:p=>clarity('set','unlocked',p.kingdom),
+  kingdom_unlock_blocked:p=>clarity('set','unlock_blocked',p.kingdom),
+  goal_done:p=>clarity('set','last_goal',p.goal),
+  year_end:p=>clarity('set','years_done',String(p.year_done-1519)),
+  panel_open:p=>clarity('set','last_panel',p.tab),
+  js_error:p=>clarity('set','js_error',String(p.msg).slice(0,200)),
+  feedback:p=>{clarity('set','fb_rating',String(p.rating||0));clarity('set','fb_from',p.from||'');
+    if(p.confusing)clarity('set','fb_confusing',p.confusing.slice(0,250));if(p.keep_playing)clarity('set','fb_keep_playing',p.keep_playing.slice(0,250));if(p.email)clarity('set','fb_email',p.email.slice(0,120));},
+  feedback_skip:()=>clarity('set','fb_skipped','yes'),
+};
 ttLoad();
 window.addEventListener('error',e=>track('js_error',{msg:String(e.message).slice(0,200),src:String(e.filename||'').split('/').pop(),line:e.lineno}));
 window.addEventListener('unhandledrejection',e=>track('js_error',{msg:String(e.reason).slice(0,200)}));
