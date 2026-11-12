@@ -21,7 +21,7 @@
 <link rel="preload" as="image" href="assets/mount_4.webp">
 <link rel="preload" as="image" href="assets/mount_5.webp">
 <link rel="preload" as="image" href="assets/mount_6.webp">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Southeast Asian Trade Tycoon</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -367,6 +367,10 @@ details summary{cursor:pointer}
 .ttnote{font-size:.78em;opacity:.65;margin-top:.8em;text-align:center}
 #startb.loading,#contb.loading{opacity:.75;cursor:progress}
 #map{background:#2c9fc4}
+.evart{aspect-ratio:3/2;width:100%;object-fit:cover;background:#efe3c4;border-radius:14px}
+.card.rest .btn{width:100%;margin-top:.45em}
+.restpick{margin-top:.6em;padding:.6em .7em;border-radius:12px;background:#fff6e0}
+.restpick input[type=range]{width:100%;height:44px;accent-color:#e8962a}
 </style>
 </head>
 <body>
@@ -1078,7 +1082,7 @@ function pMarket(){const cid=S.travel?null:S.loc;if(!cid)return travelling();con
   h+=`</div><details class="card"><summary><b>What sells well here?</b></summary><div class="list">${DATA.goods.map(g=>[g.id,sellPrice(cid,g.id)*(1-tax)/g.base]).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([g,r])=>`<div class="item">${gName(g)}<div class="price">${fmt(sellPrice(cid,g)*(1-tax))}<small>${r.toFixed(1)}× fair</small></div></div>`).join('')}</div></details>`;
   return h;}
 function travelling(){const T=S.travel;const left=T.legs.slice(T.li).reduce((a,l)=>a+l.days,0)-T.prog*T.legs[T.li].days;const sea=T.legs[T.li].mode==='sea';
-  return `<div class="cityhead"><svg viewBox="-34 -50 68 58" width="86" height="72">${spriteSVG(spriteFor(),isRich())}</svg><div><h2>${sea?'At sea':'On the road'}</h2><div class="sub">To ${esc(C[T.dst].name)} · about ${Math.ceil(left)} days left</div></div></div><div class="card"><div class="row"><span class="chip">${sea?'Sailing':'Overland'}</span>${isMonsoon(S.day)&&sea?'<span class="chip red">Monsoon seas</span>':''}</div><button class="btn ghost" data-act="fast">${S.fast?'Normal speed':'Hurry the days'}</button></div>`;}
+  return `<div class="cityhead"><svg viewBox="-34 -50 68 58" width="86" height="72">${spriteSVG(spriteFor(),isRich())}</svg><div><h2>${sea?'At sea':'On the road'}</h2><div class="sub">To ${esc(C[T.dst].name)} · about ${Math.ceil(left)} days left</div></div></div><div class="card"><div class="row"><span class="chip">${sea?'Sailing':'Overland'}</span>${isMonsoon(S.day)&&sea?'<span class="chip red">Monsoon seas</span>':''}</div><button class="btn ghost" data-act="fast">${S.fast?'Normal speed':'Fast-forward the journey'}</button></div>`;}
 function pTravel(){if(S.travel)return travelling();const dst=S.sel;let h='';
   if(!dst||dst===S.loc){h+=`<div><h2>Where to?</h2><p class="note">Tap any city on the map. Ports have a little boat. Sea passages are fast but stormy in the June–August monsoon.</p></div>`;}
   else{const c=C[dst];const p=pathTo(S.loc,dst,mods());const k=K[c.k];
@@ -1158,7 +1162,7 @@ function centerOn(cid){const [x,y]=cxy(C[cid]);const b=$('#mapwrap').getBounding
 function ensureVisible(cid){const [x,y]=cxy(C[cid]);const b=$('#mapwrap').getBoundingClientRect();const s=b.width/VB.w;const px=(x-VB.x)*s,py=(y-VB.y)*s;const vw=visibleWidthPx();let dx=0,dy=0;if(px<60)dx=px-60;else if(px>vw-60)dx=px-(vw-60);if(py<90)dy=py-90;else if(py>b.height-50)dy=py-(b.height-50);if(dx||dy){VB.x+=dx/s;VB.y+=dy/s;clampVB();applyVB();}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panelOpen&&!modalOpen()){setPanel(false);}});
 
-const IMG={"city_dome":"assets/city_dome.webp","city_fort":"assets/city_fort.webp","city_hut":"assets/city_hut.webp","city_pagoda":"assets/city_pagoda.webp","city_prang":"assets/city_prang.webp","city_stupa":"assets/city_stupa.webp","city_temple":"assets/city_temple.webp","city_tower":"assets/city_tower.webp","event_bandits":"assets/event_bandits.webp","event_pirates":"assets/event_pirates.webp","event_storm":"assets/event_storm.webp","event_windfall":"assets/event_windfall.webp","map":"assets/map.webp","mount_1":"assets/mount_1.webp","mount_2":"assets/mount_2.webp","mount_3":"assets/mount_3.webp","mount_4":"assets/mount_4.webp","mount_5":"assets/mount_5.webp","mount_6":"assets/mount_6.webp","terr_fill":"assets/terr_fill.webp","terr_line":"assets/terr_line.webp","title_landscape":"assets/title_landscape.webp","title_portrait":"assets/title_portrait.webp"};
+const IMG={"city_dome":"assets/city_dome.webp","city_fort":"assets/city_fort.webp","city_hut":"assets/city_hut.webp","city_pagoda":"assets/city_pagoda.webp","city_prang":"assets/city_prang.webp","city_stupa":"assets/city_stupa.webp","city_temple":"assets/city_temple.webp","city_tower":"assets/city_tower.webp","event_bandits":"assets/event_bandits.webp","event_pirates":"assets/event_pirates.webp","event_storm":"assets/event_storm.webp","event_windfall":"assets/event_windfall.webp","map":"assets/map.webp","map_hd":"assets/map_hd.webp","mount_1":"assets/mount_1.webp","mount_2":"assets/mount_2.webp","mount_3":"assets/mount_3.webp","mount_4":"assets/mount_4.webp","mount_5":"assets/mount_5.webp","mount_6":"assets/mount_6.webp","terr_fill":"assets/terr_fill.webp","terr_line":"assets/terr_line.webp","terr_line_hd":"assets/terr_line_hd.webp","title_landscape":"assets/title_landscape.webp","title_portrait":"assets/title_portrait.webp"};
 // ---------- Painted art (Higgsfield) ----------
 // IMG is injected at build time: {title_landscape, title_portrait, mount_1..6, city_<style>, event_<kind>}
 (function(){
@@ -1784,16 +1788,16 @@ function knownBox(){const key=(S&&S.fogKey)||'';if(key===_vbKey&&_vbBox)return _
   _vbKey=key;_vbBox={x0,y0,x1,y1,w:x1-x0,h:y1-y0};return _vbBox;}
 const _clampVBR=clampVB;clampVB=function(){if(!S){_clampVBR();return;}const bb=knownBox();if(!bb){_clampVBR();return;}
   const b=$('#mapwrap').getBoundingClientRect();const ar=(b.width&&b.height)?b.width/b.height:VB.w/VB.h;
-  const maxW=Math.min(Math.max(bb.w,bb.h*ar),PROJ.W,PROJ.H*ar);if(VB.w>maxW){const cx=VB.x+VB.w/2,cy=VB.y+VB.h/2;VB.w=maxW;VB.h=VB.w/ar;VB.x=cx-VB.w/2;VB.y=cy-VB.h/2;}
+  const maxW=Math.min(Math.max(bb.w,bb.h*ar),PROJ.W,PROJ.H*ar);const minW=PROJ.W/5.5;if(VB.w<minW){const cx=VB.x+VB.w/2,cy=VB.y+VB.h/2;VB.w=minW;VB.h=VB.w/ar;VB.x=cx-VB.w/2;VB.y=cy-VB.h/2;}if(VB.w>maxW){const cx=VB.x+VB.w/2,cy=VB.y+VB.h/2;VB.w=maxW;VB.h=VB.w/ar;VB.x=cx-VB.w/2;VB.y=cy-VB.h/2;}
   const s=(b.width||1)/VB.w;const desk=window.innerWidth>900;const right=(desk&&typeof panelOpen!=='undefined'&&panelOpen?520:0)/s;
   if(VB.w+0.5>=bb.w+right)VB.x=clamp(bb.x0+(bb.w+right-VB.w)/2,0,Math.max(0,PROJ.W+right-VB.w));else VB.x=clamp(VB.x,bb.x0,bb.x1+right-VB.w);
   if(VB.h+0.5>=bb.h)VB.y=clamp(bb.y0+(bb.h-VB.h)/2,0,Math.max(0,PROJ.H-VB.h));else VB.y=clamp(VB.y,bb.y0,bb.y1-VB.h);};
 
 // ---------- first visit: wait for the map art before the game starts ----------
 // On the web build the art comes as separate files; on a slow phone the map would otherwise appear blank for a few seconds.
-const ART_READY=(()=>{const keys=Object.keys(IMG).filter(k=>/^(map|terr_line|terr_fill|city_|mount_)/.test(k));const urls=keys.map(k=>IMG[k]).filter(u=>u&&!u.startsWith('data:'));
+const ART_READY=(()=>{const keys=Object.keys(IMG).filter(k=>/^(map|terr_line|terr_fill|city_|mount_)/.test(k)&&!k.endsWith('_hd'));const urls=keys.map(k=>IMG[k]).filter(u=>u&&!u.startsWith('data:'));
   let done=0;const st={total:urls.length,done:0,ok:urls.length===0,waiters:[]};
-  const fin=()=>{st.done=++done;if(done>=urls.length)st.ok=true;st.waiters.forEach(f=>f());};
+  const fin=()=>{st.done=++done;if(done>=urls.length){st.ok=true;try{setTimeout(()=>preloadEvents(true),0);}catch(e){}}st.waiters.forEach(f=>f());};
   urls.forEach(u=>{const im=new Image();im.decoding='async';im.onload=im.onerror=fin;im.src=u;});
   setTimeout(()=>{if(!st.ok){st.ok=true;st.waiters.forEach(f=>f());}},9000);return st;})();
 const _tsArt=titleScreen;titleScreen=function(saved){_tsArt(saved);if(ART_READY.ok)return;
@@ -1801,6 +1805,29 @@ const _tsArt=titleScreen;titleScreen=function(saved){_tsArt(saved);if(ART_READY.
   const upd=()=>{if(ART_READY.ok){btns.forEach((b,i)=>{b.disabled=false;b.textContent=label[i];b.classList.remove('loading');});return;}
     const pct=Math.round(100*ART_READY.done/Math.max(1,ART_READY.total));btns.forEach(b=>{b.disabled=true;b.classList.add('loading');});if(btns[0])btns[0].textContent=`Unrolling the map… ${pct}%`;};
   ART_READY.waiters.push(upd);upd();};
+
+// ---------- sharper map on big or high-density screens: swap in the double-resolution art after the game starts ----------
+let HD_ON=false;function loadHD(){if(HD_ON||!IMG.map_hd)return;const dense=(window.devicePixelRatio||1)*Math.max(window.innerWidth,window.innerHeight);if(dense<1700)return;HD_ON=true;
+  const swap=(k,sel)=>{if(!IMG[k])return;const im=new Image();im.decoding='async';im.onload=()=>{const e=document.querySelector('#map '+sel);if(e){e.setAttribute('href',IMG[k]);}};im.src=IMG[k];};
+  setTimeout(()=>{swap('map_hd','image.paint');swap('terr_line_hd','image.terrline');},1500);}
+const _bmHD=buildMap;buildMap=function(){_bmHD();if(HD_ON){[['map_hd','image.paint'],['terr_line_hd','image.terrline']].forEach(([k,sel])=>{const e=document.querySelector('#map '+sel);if(e&&IMG[k])e.setAttribute('href',IMG[k]);});}else if(S)loadHD();};
+// event pictures (bandits, storms, pirates, windfalls): fetch them quietly once the game is running so they are ready when an event fires
+const EV_PRE=[];let evPre=false;function preloadEvents(now){if(evPre)return;evPre=true;setTimeout(()=>{Object.keys(IMG).filter(k=>k.startsWith('event_')||k.startsWith('title_')).forEach(k=>{const u=IMG[k];if(!u||u.startsWith('data:'))return;const im=new Image();im.decoding='async';im.src=u;EV_PRE.push(im);});},now?0:1500);}
+if(typeof ART_READY!=='undefined'&&ART_READY.ok)setTimeout(()=>preloadEvents(true),500);
+const _bmEV=buildMap;buildMap=function(){_bmEV();if(S)preloadEvents();};
+
+// ---------- rest: until fresh, a chosen number of days, or a month ----------
+function restRate(){const home=S.family.house&&S.family.house.c===S.loc;return home?10*(1+0.4*S.family.house.lvl):8;}
+function restCard(){const f=Math.round(S.fatigue),r=restRate(),full=Math.max(1,Math.ceil(S.fatigue/r));const home=S.family.house&&S.family.house.c===S.loc;const d0=Math.min(full,7);
+  return `<div class="card rest"><h3>Rest</h3><p class="sub">Fatigue <b>${f}</b>. Over 85 slows the caravan. You recover ${Math.round(r)} a day${home?' at home':''}.</p>
+  <button class="btn" data-act="rest" data-x="${full}" ${f<=0?'disabled':''}>${f<=0?'Fully rested':`Rest until fresh · ${full} day${full>1?'s':''}`}</button>
+  <div class="restpick"><label for="restd">Rest for <b class="rdays">${d0}</b> days → fatigue <b class="rfat">${Math.max(0,Math.round(S.fatigue-d0*r))}</b></label>
+  <input id="restd" type="range" min="1" max="60" value="${d0}" oninput="const c=this.closest('.rest');const d=+this.value;c.querySelector('.rdays').textContent=d;c.querySelector('.rfat').textContent=Math.max(0,Math.round(${S.fatigue}-d*${r}));const b=c.querySelector('.restgo');b.dataset.x=d;b.textContent='Rest '+d+' day'+(d>1?'s':'');">
+  <button class="btn ghost restgo" data-act="rest" data-x="${d0}">Rest ${d0} day${d0>1?'s':''}</button></div>
+  <button class="btn ghost" data-act="rest" data-x="30">Wait a month</button></div>`;}
+const _pTownR=pTown;pTown=function(){let h=_pTownR();if(S.travel)return h;return h.replace(/<div class="card"><h3>Rest<\/h3>[\s\S]*?Wait a month<\/button><\/div><\/div>/,restCard());};
+// travelling: say what the speed button does
+const _travR=travelling;travelling=function(){return _travR().replace(/>(Hurry the days|Fast-forward the journey|Normal speed)<\/button>/,(m,t)=>`>${S.fast?'Normal speed':'Fast-forward ⏩'}</button><p class="sub">${S.fast?'Days are passing quickly.':'Same number of days, they just pass quicker.'}</p>`);};
 
 // ================= Telemetry + feedback =================
 // PostHog: game events, funnels, feedback answers. Microsoft Clarity: session replays and heatmaps.
@@ -1905,6 +1932,29 @@ function syncSheet(){if(!isPhone())return;const a=document.querySelector('aside'
 const _renderM=render;render=function(){_renderM();if(!S)return;if(isPhone()){$('#tabs').querySelectorAll('button').forEach(b=>{b.setAttribute('aria-selected',String(panelOpen&&S.tab===b.dataset.tab));
   b.onclick=()=>{const t=b.dataset.tab;if(panelOpen&&S.tab===t)panelOpen=false;else{panelOpen=true;S.tab=t;}render();};});}syncSheet();};
 addEventListener('resize',()=>{syncSheet();});
+
+// ---------- touch: two-finger pinch zoom, trackpad pinch, crisp art after zooming ----------
+(function(){const w=$('#mapwrap');if(!w)return;const P=new Map();let pinch=null;const held=new Set();
+  const inMap=e=>w.contains(e.target)&&!e.target.closest('.mapctl,.legend,#layersPanel');
+  const mid=()=>{const a=[...P.values()];return {x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1};};
+  window.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'||!inMap(e))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(P.size===2){const m=mid();pinch={d0:m.d,x0:m.x,y0:m.y,vx:VB.x,vy:VB.y,vw:VB.w,vh:VB.h};P.forEach((v,id)=>held.add(id));e.stopImmediatePropagation();}},true);
+  window.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;P.set(e.pointerId,{x:e.clientX,y:e.clientY});if(held.has(e.pointerId)&&(!pinch||P.size<2)){e.stopImmediatePropagation();return;}if(!pinch||P.size<2)return;
+    e.stopImmediatePropagation();e.preventDefault();const m=mid();const b=w.getBoundingClientRect();const ar=(b.width/b.height)||1;
+    const nw=clamp(pinch.vw*pinch.d0/m.d,PROJ.W/5.5,Math.min(PROJ.W,PROJ.H*ar));
+    const mx=pinch.vx+(pinch.x0-b.left)/b.width*pinch.vw,my=pinch.vy+(pinch.y0-b.top)/b.height*pinch.vh;   // map point under the fingers at the start
+    VB.w=nw;VB.h=nw/ar;VB.x=mx-(m.x-b.left)/b.width*nw;VB.y=my-(m.y-b.top)/b.height*VB.h;setVB();},{capture:true,passive:false});
+  const up=e=>{if(!P.has(e.pointerId))return;P.delete(e.pointerId);held.delete(e.pointerId);if(P.size<2)pinch=null;};
+  window.addEventListener('pointerup',up,true);window.addEventListener('pointercancel',up,true);
+  // Safari: stop the page itself from zooming
+  ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+  // trackpad pinch (ctrl+wheel) and smooth wheel zoom
+  w.addEventListener('wheel',e=>{e.preventDefault();e.stopImmediatePropagation();const b=w.getBoundingClientRect();const cx=VB.x+(e.clientX-b.left)/b.width*VB.w,cy=VB.y+(e.clientY-b.top)/b.height*VB.h;
+    const k=e.ctrlKey?0.012:(e.deltaMode===1?0.05:0.0022);zoom(Math.exp(-e.deltaY*k),cx,cy);},{capture:true,passive:false});
+  // after any zoom, let the browser repaint the map at the new size so the art stays sharp
+  let lastW=0,rt=null;const _a=applyVB;applyVB=function(){_a();if(Math.abs(VB.w-lastW)>0.5){lastW=VB.w;const s=$('#map');if(!s)return;clearTimeout(rt);
+      rt=setTimeout(()=>{s.style.willChange='auto';requestAnimationFrame(()=>requestAnimationFrame(()=>{s.style.willChange='transform';}));},220);}};
+})();
 
 $("#pclose").onclick=()=>setPanel(false);$("#ic-coin").innerHTML=UI.coin;$("#ic-star").innerHTML=UI.star;$("#ic-box").innerHTML=UI.box;$("#ic-zzz").innerHTML=UI.zzz;
 // ---------- Boot ----------
