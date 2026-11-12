@@ -1,3 +1,5 @@
-# Southeast Asian Trade Tycoon
+# Monsoon Merchants
 
-A browser trading game set in 1520 India and the Indian Ocean. Static site: open index.html.
+A browser trading game set in 1520 India and the Indian Ocean. Play at https://tycoon.earnedconviction.com
+
+Static site: open index.html.

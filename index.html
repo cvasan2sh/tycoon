@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high">
 <link rel="preload" as="image" href="assets/title_landscape.webp" media="(min-aspect-ratio: 1/1)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/title_portrait.webp" media="(max-aspect-ratio: 1/1)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/map.webp" fetchpriority="high">
@@ -22,7 +23,17 @@
 <link rel="preload" as="image" href="assets/mount_5.webp">
 <link rel="preload" as="image" href="assets/mount_6.webp">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Southeast Asian Trade Tycoon</title>
+<title>Monsoon Merchants</title>
+<link rel="icon" type="image/webp" href="assets/logo_icon.webp">
+<meta name="description" content="Trade spices, silk and horses across India and the Indian Ocean in 1520. A free browser trading game.">
+<meta name="theme-color" content="#2c9fc4">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:title" content="Monsoon Merchants">
+<meta property="og:description" content="Trade spices, silk and horses across India and the Indian Ocean in 1520. Free to play in your browser.">
+<meta property="og:image" content="https://tycoon.earnedconviction.com/assets/og.jpg">
+<meta property="og:url" content="https://tycoon.earnedconviction.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -372,17 +383,22 @@ details summary{cursor:pointer}
 .restpick{margin-top:.6em;padding:.6em .7em;border-radius:12px;background:#fff6e0}
 .restpick input[type=range]{width:100%;height:44px;accent-color:#e8962a}
 /* tablets: the side panel starts below the top bar so money, cargo and fatigue stay visible */
-@media (min-width:901px) and (max-width:1439px){.app.panel-open aside{top:74px!important;max-height:calc(100% - 84px)}.app.panel-open header.hud{right:96px}}
+@media (min-width:901px) and (max-width:1599px){.app.panel-open aside{top:74px!important;max-height:calc(100% - 84px)}.app.panel-open header.hud{right:96px}}
 #speedb.pulse{animation:spdpulse 1s ease-in-out 5;box-shadow:0 0 0 4px #f2a51a}
 @keyframes spdpulse{50%{transform:scale(1.15)}}
 .anim{width:52px;height:44px;flex:none}.anim.plus{display:inline-flex;align-items:center;justify-content:center;border-radius:12px;background:#f3e3bd;font-weight:800;color:#7a4e2e;font-size:22px;width:44px}
 .item.emptyslot{opacity:.6;border-style:dashed}
+/* Monsoon Merchants logo */
+.brand .brandlogo{height:44px;width:auto;display:block;filter:drop-shadow(0 2px 2px rgba(60,30,10,.25))}
+.brand{display:flex;align-items:center}
+h1.logoh{margin:0 0 .25em;line-height:0;font-size:0}
+h1.logoh img{width:min(420px,78vw);height:auto;filter:drop-shadow(0 6px 12px rgba(60,30,10,.35))}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="hud">
-    <div class="brand">Southeast Asian<b>Trade Tycoon</b></div>
+    <div class="brand"><img class="brandlogo" src="assets/logo_s.webp" alt="Monsoon Merchants"></div>
     <div class="pill"><span id="h-wx"></span><div><b id="h-date">–</b><span id="h-season">–</span></div></div>
     <div class="pill"><span class="ic" id="ic-coin"></span><div><b id="h-coins">–</b><span>varaha</span></div></div>
     <div class="pill"><span class="ic" id="ic-star"></span><div><b id="h-title">–</b><span id="h-rep">Reputation</span></div></div>
@@ -1117,7 +1133,7 @@ const _baseRender=render;
 let inTick=false,tickN=0;const _baseTick=tickTravel;tickTravel=function(){inTick=true;try{_baseTick();}finally{inTick=false;}};
 function lightRender(){$('#h-date').textContent=dateStr(S.day);$('#h-season').textContent=isMonsoon(S.day)?'Monsoon: rough seas':'On the road';$('#h-coins').textContent=fmt(S.coins);$('#h-fat').textContent=Math.round(S.fatigue);$('#h-fatbar').style.width=S.fatigue+'%';drawMapState();followCaravan();}
 render=function(){if(S&&inTick&&S.travel&&(tickN++%10)!==0){lightRender();return;}_baseRender();if(!S)return;const w=$('#h-wx');if(w)w.innerHTML=isMonsoon(S.day)?UI.rain:UI.sun;followCaravan();};
-function titleScreen(saved){const ov=document.createElement('div');ov.className='title-screen';ov.innerHTML=`<div class="title-card"><svg class="hero" viewBox="-70 -84 140 92" aria-hidden="true"><ellipse cx="0" cy="4" rx="60" ry="6" fill="#5b3a24" opacity=".15"/><g transform="translate(-36,0) scale(1.1)">${building('temple','#e0a526')}</g><g transform="translate(14,2)">${spriteSVG('elephant',true)}</g></svg><div class="kicker">The Indian Ocean · 1520</div><h1>Southeast Asian<br>Trade Tycoon</h1><p>Krishnadevaraya rules from the City of Victory. Horses come in from Hormuz, pepper goes out from Calicut, and the Portuguese have just taken Goa. Start with 300 gold varaha and one pack ox. Build a trading house that outlasts you.</p>
+function titleScreen(saved){const ov=document.createElement('div');ov.className='title-screen';ov.innerHTML=`<div class="title-card"><svg class="hero" viewBox="-70 -84 140 92" aria-hidden="true"><ellipse cx="0" cy="4" rx="60" ry="6" fill="#5b3a24" opacity=".15"/><g transform="translate(-36,0) scale(1.1)">${building('temple','#e0a526')}</g><g transform="translate(14,2)">${spriteSVG('elephant',true)}</g></svg><div class="kicker">The Indian Ocean · 1520</div><h1 class="logoh"><img src="${IMG.logo||''}" alt="Monsoon Merchants"></h1><p>Krishnadevaraya rules from the City of Victory. Horses come in from Hormuz, pepper goes out from Calicut, and the Portuguese have just taken Goa. Start with 300 gold varaha and one pack ox. Build a trading house that outlasts you.</p>
   <div class="row"><label for="pname" class="sub">Your name</label><input id="pname" value="Mallappa" maxlength="24"></div><div class="row"><button class="btn go big" id="startb">Begin in Vijayanagara</button>${saved?`<button class="btn ghost" id="contb">Continue ${esc(saved.house)} (${dateStr(saved.day)})</button>`:''}</div>
   <p class="sub">Early prototype · 100 places · 15 kingdoms · 106 goods · history simplified for play</p></div>`;document.body.appendChild(ov);
   $('#startb').onclick=()=>{newGame($('#pname').value.trim()||'Mallappa');ov.remove();boot();};if(saved)$('#contb').onclick=()=>{S=migrate(saved);ov.remove();boot();};}
@@ -1168,7 +1184,7 @@ function centerOn(cid){const [x,y]=cxy(C[cid]);const b=$('#mapwrap').getBounding
 function ensureVisible(cid){const [x,y]=cxy(C[cid]);const b=$('#mapwrap').getBoundingClientRect();const s=b.width/VB.w;const px=(x-VB.x)*s,py=(y-VB.y)*s;const vw=visibleWidthPx();let dx=0,dy=0;if(px<60)dx=px-60;else if(px>vw-60)dx=px-(vw-60);if(py<90)dy=py-90;else if(py>b.height-50)dy=py-(b.height-50);if(dx||dy){VB.x+=dx/s;VB.y+=dy/s;clampVB();applyVB();}}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panelOpen&&!modalOpen()){setPanel(false);}});
 
-const IMG={"city_dome":"assets/city_dome.webp","city_fort":"assets/city_fort.webp","city_hut":"assets/city_hut.webp","city_pagoda":"assets/city_pagoda.webp","city_prang":"assets/city_prang.webp","city_stupa":"assets/city_stupa.webp","city_temple":"assets/city_temple.webp","city_tower":"assets/city_tower.webp","event_bandits":"assets/event_bandits.webp","event_pirates":"assets/event_pirates.webp","event_storm":"assets/event_storm.webp","event_windfall":"assets/event_windfall.webp","map":"assets/map.webp","map_hd":"assets/map_hd.webp","mount_1":"assets/mount_1.webp","mount_2":"assets/mount_2.webp","mount_3":"assets/mount_3.webp","mount_4":"assets/mount_4.webp","mount_5":"assets/mount_5.webp","mount_6":"assets/mount_6.webp","terr_fill":"assets/terr_fill.webp","terr_line":"assets/terr_line.webp","terr_line_hd":"assets/terr_line_hd.webp","title_landscape":"assets/title_landscape.webp","title_portrait":"assets/title_portrait.webp"};
+const IMG={"city_dome":"assets/city_dome.webp","city_fort":"assets/city_fort.webp","city_hut":"assets/city_hut.webp","city_pagoda":"assets/city_pagoda.webp","city_prang":"assets/city_prang.webp","city_stupa":"assets/city_stupa.webp","city_temple":"assets/city_temple.webp","city_tower":"assets/city_tower.webp","event_bandits":"assets/event_bandits.webp","event_pirates":"assets/event_pirates.webp","event_storm":"assets/event_storm.webp","event_windfall":"assets/event_windfall.webp","logo":"assets/logo.webp","logo_icon":"assets/logo_icon.webp","logo_s":"assets/logo_s.webp","map":"assets/map.webp","map_hd":"assets/map_hd.webp","mount_1":"assets/mount_1.webp","mount_2":"assets/mount_2.webp","mount_3":"assets/mount_3.webp","mount_4":"assets/mount_4.webp","mount_5":"assets/mount_5.webp","mount_6":"assets/mount_6.webp","terr_fill":"assets/terr_fill.webp","terr_line":"assets/terr_line.webp","terr_line_hd":"assets/terr_line_hd.webp","title_landscape":"assets/title_landscape.webp","title_portrait":"assets/title_portrait.webp"};
 // ---------- Painted art (Higgsfield) ----------
 // IMG is injected at build time: {title_landscape, title_portrait, mount_1..6, city_<style>, event_<kind>}
 (function(){
@@ -1790,14 +1806,15 @@ const VIEW_PAD=110;let _vbKey='',_vbBox=null;
 function knownBox(){const key=(S&&S.fogKey)||'';if(key===_vbKey&&_vbBox)return _vbBox;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
   DATA.cities.forEach(c=>{if(cityFog(c.id)>1)return;x0=Math.min(x0,c.x);y0=Math.min(y0,c.y);x1=Math.max(x1,c.x);y1=Math.max(y1,c.y);});
   if(x0>x1){_vbBox=null;return null;}
-  x0=Math.max(0,x0-VIEW_PAD);y0=Math.max(0,y0-VIEW_PAD);x1=Math.min(PROJ.W,x1+VIEW_PAD);y1=Math.min(PROJ.H,y1+VIEW_PAD);
+  x0=Math.max(-40,x0-VIEW_PAD);y0=Math.max(-90,y0-VIEW_PAD);   // a little room past the map's top edge so northern towns can clear the top bar
+  x1=Math.min(PROJ.W,x1+VIEW_PAD);y1=Math.min(PROJ.H,y1+VIEW_PAD);
   _vbKey=key;_vbBox={x0,y0,x1,y1,w:x1-x0,h:y1-y0};return _vbBox;}
 const _clampVBR=clampVB;clampVB=function(){if(!S){_clampVBR();return;}const bb=knownBox();if(!bb){_clampVBR();return;}
   const b=$('#mapwrap').getBoundingClientRect();const ar=(b.width&&b.height)?b.width/b.height:VB.w/VB.h;
   const maxW=Math.min(Math.max(bb.w,bb.h*ar),PROJ.W,PROJ.H*ar);const minW=PROJ.W/5.5;if(VB.w<minW){const cx=VB.x+VB.w/2,cy=VB.y+VB.h/2;VB.w=minW;VB.h=VB.w/ar;VB.x=cx-VB.w/2;VB.y=cy-VB.h/2;}if(VB.w>maxW){const cx=VB.x+VB.w/2,cy=VB.y+VB.h/2;VB.w=maxW;VB.h=VB.w/ar;VB.x=cx-VB.w/2;VB.y=cy-VB.h/2;}
   const s=(b.width||1)/VB.w;const desk=window.innerWidth>900;const right=(desk&&typeof panelOpen!=='undefined'&&panelOpen?520:0)/s;
   if(VB.w+0.5>=bb.w+right)VB.x=clamp(bb.x0+(bb.w+right-VB.w)/2,0,Math.max(0,PROJ.W+right-VB.w));else VB.x=clamp(VB.x,bb.x0,bb.x1+right-VB.w);
-  if(VB.h+0.5>=bb.h)VB.y=clamp(bb.y0+(bb.h-VB.h)/2,0,Math.max(0,PROJ.H-VB.h));else VB.y=clamp(VB.y,bb.y0,bb.y1-VB.h);};
+  if(VB.h+0.5>=bb.h)VB.y=clamp(bb.y0+(bb.h-VB.h)/2,-90,Math.max(-90,PROJ.H-VB.h));else VB.y=clamp(VB.y,bb.y0,bb.y1-VB.h);};
 
 // ---------- first visit: wait for the map art before the game starts ----------
 // On the web build the art comes as separate files; on a slow phone the map would otherwise appear blank for a few seconds.
@@ -1856,6 +1873,9 @@ const _dmsU=drawMapState;drawMapState=function(){_dmsU();try{checkUnlockable();}
 // after an unlock, name the new neighbours that appeared
 const _licN=buyLicence;buyLicence=function(k){const before=new Set(DATA.kingdoms.filter(x=>frontier(x.id)||owned(x.id)).map(x=>x.id));_licN(k);if(!owned(k))return;
   const fresh=DATA.kingdoms.filter(x=>!before.has(x.id)&&(frontier(x.id)||enterable(x.id))).map(x=>x.name);if(fresh.length){log(`New lands on your border: ${fresh.join(', ')}.`,'y');toast(`New on your border: ${fresh.join(', ')}`);}};
+// keep a focused town clear of the top bar and the goal strips
+ensureVisible=function(cid){const [x,y]=cxy(C[cid]);const b=$('#mapwrap').getBoundingClientRect();const s=b.width/VB.w;const px=(x-VB.x)*s,py=(y-VB.y)*s;const vw=visibleWidthPx();let dx=0,dy=0;
+  const top=150;if(px<60)dx=px-60;else if(px>vw-60)dx=px-(vw-60);if(py<top)dy=py-top;else if(py>b.height-60)dy=py-(b.height-60);if(dx||dy){VB.x+=dx/s;VB.y+=dy/s;clampVB();applyVB();}};
 
 // ================= Caravan v2: animal slots =================
 // Your title decides how many animals you may lead. Each slot holds a donkey, a bullock cart or a horse.
@@ -1958,7 +1978,7 @@ const TT_T0=Date.now();let TT_Q=[];
 function ttLoad(){if(!TT_ON)return;
   if(TT_CFG.posthogKey){!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once unregister identify alias set_config reset get_distinct_id startSessionRecording stopSessionRecording opt_out_capturing opt_in_capturing".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init(TT_CFG.posthogKey,{api_host:TT_CFG.posthogHost,person_profiles:'identified_only',capture_pageview:true,capture_pageleave:true,autocapture:false,disable_session_recording:true});
-    posthog.register({game:'trade-tycoon',build:'realms-v3'});}
+    posthog.register({game:'monsoon-merchants',build:'caravan-v2'});}
   if(TT_CFG.clarityId){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",TT_CFG.clarityId);}
   // ad attribution: keep the landing UTM tags on every event
   try{const q=new URLSearchParams(location.search);const u={};['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid'].forEach(k=>{if(q.get(k))u[k]=q.get(k);});if(Object.keys(u).length){localStorage.setItem('tt-utm',JSON.stringify(u));}
@@ -2091,7 +2111,7 @@ addEventListener('resize',()=>{syncSheet();});
 $("#pclose").onclick=()=>setPanel(false);$("#ic-coin").innerHTML=UI.coin;$("#ic-star").innerHTML=UI.star;$("#ic-box").innerHTML=UI.box;$("#ic-zzz").innerHTML=UI.zzz;
 // ---------- Boot ----------
 const hot=window.claude&&window.claude.hot;
-function titleScreenOld(saved){const ov=document.createElement('div');ov.className='title-screen';ov.innerHTML=`<div class="title-card"><div class="sub" style="letter-spacing:.2em;text-transform:uppercase">The Indian Ocean · 1520</div><h1>Southeast Asian Trade Tycoon</h1><p>Krishnadevaraya rules from the City of Victory. Horses come in from Hormuz, pepper goes out from Calicut, and the Portuguese have just taken Goa. Start with 300 gold varaha and a pack ox. Build a trading house that outlasts you.</p>
+function titleScreenOld(saved){const ov=document.createElement('div');ov.className='title-screen';ov.innerHTML=`<div class="title-card"><div class="sub" style="letter-spacing:.2em;text-transform:uppercase">The Indian Ocean · 1520</div><h1 class="logoh"><img src="assets/logo.webp" alt="Monsoon Merchants"></h1><p>Krishnadevaraya rules from the City of Victory. Horses come in from Hormuz, pepper goes out from Calicut, and the Portuguese have just taken Goa. Start with 300 gold varaha and a pack ox. Build a trading house that outlasts you.</p>
   <div class="row"><label for="pname" class="sub">Your name</label><input id="pname" value="Mallappa" maxlength="24"></div><div class="row"><button class="btn" id="startb">Begin in Vijayanagara</button>${saved?`<button class="btn ghost" id="contb">Continue ${esc(saved.house)} (${dateStr(saved.day)})</button>`:''}</div>
   <p class="sub">An early prototype: 80 cities, 37 realms, 67 goods. History simplified for play.</p></div>`;document.body.appendChild(ov);
   $('#startb').onclick=()=>{newGame($('#pname').value.trim()||'Mallappa');ov.remove();boot();};if(saved)$('#contb').onclick=()=>{S=saved;S.travel&&(S.travel=S.travel);ov.remove();boot();};}
