@@ -2,26 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+// Instagram / Facebook in-app browser: on Android, hand the page to the phone's real browser before any art downloads.
+(function(){try{var ua=navigator.userAgent||"";if(!/Instagram|FBAN|FBAV|FB_IAB/i.test(ua))return;window.__INAPP=true;
+if(/android/i.test(ua)&&!/[?&]inapp=stay/.test(location.search)){window.__IG_ESCAPED=true;
+location.href="intent://"+location.host+location.pathname+location.search+location.hash+"#Intent;scheme=https;end";}}catch(e){}})();
+</script>
 <link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high">
-<link rel="preload" as="image" href="assets/title_landscape.webp" media="(min-aspect-ratio: 1/1)" fetchpriority="high">
-<link rel="preload" as="image" href="assets/title_portrait.webp" media="(max-aspect-ratio: 1/1)" fetchpriority="high">
-<link rel="preload" as="image" href="assets/map.webp" fetchpriority="high">
-<link rel="preload" as="image" href="assets/terr_line.webp" fetchpriority="high">
-<link rel="preload" as="image" href="assets/terr_fill.webp" fetchpriority="high">
-<link rel="preload" as="image" href="assets/city_dome.webp">
-<link rel="preload" as="image" href="assets/city_fort.webp">
-<link rel="preload" as="image" href="assets/city_hut.webp">
-<link rel="preload" as="image" href="assets/city_pagoda.webp">
-<link rel="preload" as="image" href="assets/city_prang.webp">
-<link rel="preload" as="image" href="assets/city_stupa.webp">
-<link rel="preload" as="image" href="assets/city_temple.webp">
-<link rel="preload" as="image" href="assets/city_tower.webp">
-<link rel="preload" as="image" href="assets/mount_1.webp">
-<link rel="preload" as="image" href="assets/mount_2.webp">
-<link rel="preload" as="image" href="assets/mount_3.webp">
-<link rel="preload" as="image" href="assets/mount_4.webp">
-<link rel="preload" as="image" href="assets/mount_5.webp">
-<link rel="preload" as="image" href="assets/mount_6.webp">
+<link rel="preload" as="image" href="assets/title_landscape.webp" media="(min-aspect-ratio: 4/5)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/title_portrait.webp" media="(max-aspect-ratio: 4/5)" fetchpriority="high">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Monsoon Merchants</title>
 <link rel="icon" type="image/webp" href="assets/logo_icon.webp">
@@ -36,7 +25,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 <style>
 /* Layout idea: a storybook map of the 1520 Indian Ocean fills the screen; chunky paper cards float on top like a mobile trading game. */
 :root{
@@ -1820,9 +1810,12 @@ const _clampVBR=clampVB;clampVB=function(){if(!S){_clampVBR();return;}const bb=k
 // On the web build the art comes as separate files; on a slow phone the map would otherwise appear blank for a few seconds.
 const ART_READY=(()=>{const keys=Object.keys(IMG).filter(k=>/^(map|terr_line|terr_fill|city_|mount_)/.test(k)&&!k.endsWith('_hd'));const urls=keys.map(k=>IMG[k]).filter(u=>u&&!u.startsWith('data:'));
   let done=0;const st={total:urls.length,done:0,ok:urls.length===0,waiters:[]};
-  const fin=()=>{st.done=++done;if(done>=urls.length){st.ok=true;try{setTimeout(()=>preloadEvents(true),0);}catch(e){}}st.waiters.forEach(f=>f());};
-  urls.forEach(u=>{const im=new Image();im.decoding='async';im.onload=im.onerror=fin;im.src=u;});
-  setTimeout(()=>{if(!st.ok){st.ok=true;st.waiters.forEach(f=>f());}},9000);return st;})();
+  const fin=()=>{st.done=++done;if(done>=urls.length){st.ok=true;}st.waiters.forEach(f=>f());};
+  // fetch the map art only after the title picture has arrived, so the first screen isn't sharing a slow connection with 1 MB of map
+  let go=false;const startArt=()=>{if(go)return;go=true;urls.forEach(u=>{const im=new Image();im.decoding='async';im.onload=im.onerror=fin;im.src=u;});};
+  const tu=(window.matchMedia&&matchMedia('(min-aspect-ratio: 4/5)').matches?IMG.title_landscape:IMG.title_portrait)||'';
+  if(tu&&!tu.startsWith('data:')){const ti=new Image();ti.onload=ti.onerror=startArt;ti.src=tu;setTimeout(startArt,3500);}else startArt();
+  setTimeout(()=>{if(!st.ok){st.ok=true;st.waiters.forEach(f=>f());}},12000);return st;})();
 const _tsArt=titleScreen;titleScreen=function(saved){_tsArt(saved);if(ART_READY.ok)return;
   const btns=['#startb','#contb'].map(q=>$(q)).filter(Boolean);const label=btns.map(b=>b.textContent);
   const upd=()=>{if(ART_READY.ok){btns.forEach((b,i)=>{b.disabled=false;b.textContent=label[i];b.classList.remove('loading');});return;}
@@ -1835,7 +1828,7 @@ let HD_ON=false;function loadHD(){if(HD_ON||!IMG.map_hd)return;const dense=(wind
   setTimeout(()=>{swap('map_hd','image.paint');swap('terr_line_hd','image.terrline');},1500);}
 const _bmHD=buildMap;buildMap=function(){_bmHD();if(HD_ON){[['map_hd','image.paint'],['terr_line_hd','image.terrline']].forEach(([k,sel])=>{const e=document.querySelector('#map '+sel);if(e&&IMG[k])e.setAttribute('href',IMG[k]);});}else if(S)loadHD();};
 // event pictures (bandits, storms, pirates, windfalls): fetch them quietly once the game is running so they are ready when an event fires
-const EV_PRE=[];let evPre=false;function preloadEvents(now){if(evPre)return;evPre=true;setTimeout(()=>{Object.keys(IMG).filter(k=>k.startsWith('event_')||k.startsWith('title_')).forEach(k=>{const u=IMG[k];if(!u||u.startsWith('data:'))return;const im=new Image();im.decoding='async';im.src=u;EV_PRE.push(im);});},now?0:1500);}
+const EV_PRE=[];let evPre=false;function preloadEvents(now){if(evPre)return;evPre=true;setTimeout(()=>{Object.keys(IMG).filter(k=>k.startsWith('event_')).forEach(k=>{const u=IMG[k];if(!u||u.startsWith('data:'))return;const im=new Image();im.decoding='async';im.src=u;EV_PRE.push(im);});},now?0:1500);}
 if(typeof ART_READY!=='undefined'&&ART_READY.ok)setTimeout(()=>preloadEvents(true),500);
 const _bmEV=buildMap;buildMap=function(){_bmEV();if(S)preloadEvents();};
 
@@ -1974,22 +1967,23 @@ const TT_CFG={
   hosts:['tycoon.earnedconviction.com'],  // only these hostnames send data
 };
 const TT_ON=(()=>{try{return !window.__TEST__&&location.protocol.startsWith('http')&&TT_CFG.hosts.includes(location.hostname);}catch(e){return false;}})();
-const TT_T0=Date.now();let TT_Q=[];
-function ttLoad(){if(!TT_ON)return;
+const TT_T0=Date.now();let TT_Q=[];let TT_READY=false;
+function ttLoad(){if(!TT_ON||window.__IG_ESCAPED)return;
   if(TT_CFG.posthogKey){!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once unregister identify alias set_config reset get_distinct_id startSessionRecording stopSessionRecording opt_out_capturing opt_in_capturing".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init(TT_CFG.posthogKey,{api_host:TT_CFG.posthogHost,person_profiles:'identified_only',capture_pageview:true,capture_pageleave:true,autocapture:false,disable_session_recording:true});
     posthog.register({game:'monsoon-merchants',build:'caravan-v2'});}
   if(TT_CFG.clarityId){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script",TT_CFG.clarityId);}
   // ad attribution: keep the landing UTM tags on every event
   try{const q=new URLSearchParams(location.search);const u={};['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid'].forEach(k=>{if(q.get(k))u[k]=q.get(k);});if(Object.keys(u).length){localStorage.setItem('tt-utm',JSON.stringify(u));}
-    const saved=JSON.parse(localStorage.getItem('tt-utm')||'{}');if(window.posthog&&Object.keys(saved).length)posthog.register(saved);}catch(e){}}
+    const saved=JSON.parse(localStorage.getItem('tt-utm')||'{}');if(window.posthog&&Object.keys(saved).length)posthog.register(saved);}catch(e){}
+  TT_READY=true;const q=TT_Q;TT_Q=[];q.forEach(([ev,p,t])=>{try{if(window.posthog)posthog.capture(ev,p,{timestamp:new Date(t)});if(window.clarity)clarity('event',ev);}catch(e){}});}
 function ttState(){if(!S)return {};const d=dateOf(S.day);let nw=0;try{nw=Math.round(netWorth());}catch(e){}
   return {g_year:d.y,g_day:S.day,coins:Math.round(S.coins),net_worth:nw,rep:Math.round(S.rep),title:title(),loc:S.loc,
     kingdoms:licCount(),discovered:discCount(),can_sail:seaOK(),firms:Object.keys(S.firms||{}).length,cargo_used:Math.round(cargoUsed()),
     mins_played:Math.round((Date.now()-TT_T0)/60000),mobile:window.innerWidth<900};}
 function track(ev,props){const p=Object.assign({},ttState(),props||{});
   try{const L=JSON.parse(localStorage.getItem('tt-events')||'[]');L.push([Date.now(),ev,props||{}]);localStorage.setItem('tt-events',JSON.stringify(L.slice(-300)));}catch(e){}
-  if(!TT_ON)return;try{if(window.posthog&&posthog.capture)posthog.capture(ev,p);}catch(e){}
+  if(!TT_ON||window.__IG_ESCAPED)return;if(!TT_READY){TT_Q.push([ev,p,Date.now()]);return;}try{if(window.posthog&&posthog.capture)posthog.capture(ev,p);}catch(e){}
   try{if(window.clarity){clarity('event',ev);const st=ttState();
     // session-level tags: filter and segment recordings by how far each player got
     clarity('set','title',String(st.title||''));clarity('set','kingdoms',String(st.kingdoms||1));clarity('set','game_year',String(st.g_year||''));
@@ -2013,7 +2007,29 @@ const CL_TAGS={
     if(p.confusing)clarity('set','fb_confusing',p.confusing.slice(0,250));if(p.keep_playing)clarity('set','fb_keep_playing',p.keep_playing.slice(0,250));if(p.email)clarity('set','fb_email',p.email.slice(0,120));},
   feedback_skip:()=>clarity('set','fb_skipped','yes'),
 };
-ttLoad();
+// load the trackers once the title art is on screen (or after 4 s), so they don't compete with it on slow phones
+(function(){let done=false;const go=()=>{if(done)return;done=true;ttLoad();};
+  if(document.readyState==='complete')setTimeout(go,800);else addEventListener('load',()=>setTimeout(go,800));setTimeout(go,4000);})();
+if(window.__INAPP)track('inapp_browser',{os:/android/i.test(navigator.userAgent)?'android':'ios',escaped:!!window.__IG_ESCAPED});
+// ---------- iPhone inside Instagram/Facebook: offer Safari (iOS doesn't let a page leave the in-app browser by itself) ----------
+(function(){if(!window.__INAPP||window.__IG_ESCAPED||!/iPhone|iPad|iPod/i.test(navigator.userAgent))return;
+  try{if(sessionStorage.getItem('inapp-x'))return;}catch(e){}
+  const st=document.createElement('style');st.textContent=`.inapp{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:90;background:var(--paper);border:3px solid var(--edge);border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.25}
+.inapp b{display:block;font-size:15px}.inapp .go{flex:none;background:var(--green);color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:700}
+.inapp .x{flex:none;background:none;border:0;font-size:20px;color:var(--muted);padding:0 4px}.inapp .arrow{position:absolute;right:14px;top:-6px;font-size:22px;animation:inappb 1s infinite alternate}
+@keyframes inappb{to{transform:translateY(-5px)}}`;document.head.appendChild(st);
+  const el=document.createElement('div');el.className='inapp';el.setAttribute('role','status');
+  el.innerHTML=`<div style="flex:1"><b>Playing inside Instagram?</b><span class="msg">The game runs smoother in Safari.</span></div><button class="go">Open in Safari</button><button class="x" aria-label="Close">×</button>`;
+  const close=()=>{el.remove();try{sessionStorage.setItem('inapp-x','1');}catch(e){}};
+  el.querySelector('.x').onclick=()=>{track('inapp_dismiss',{});close();};
+  el.querySelector('.go').onclick=()=>{track('inapp_open_safari',{});const u=location.href.replace(/^https?:\/\//,'');
+    location.href='x-safari-https://'+u;
+    setTimeout(()=>{if(document.visibilityState!=='visible')return;el.querySelector('.msg').textContent='Tap ••• at the top right, then “Open in external browser”.';
+      el.querySelector('.go').remove();const a=document.createElement('span');a.className='arrow';a.textContent='↗';el.appendChild(a);},1200);};
+  const add=()=>{document.body.appendChild(el);
+    // only on the title screen: once the game starts, get out of the way of the top bar
+    const iv=setInterval(()=>{if(!el.isConnected){clearInterval(iv);return;}if(!document.querySelector('.title-screen')){clearInterval(iv);el.remove();}},700);};
+  if(document.body)add();else addEventListener('DOMContentLoaded',add);})();
 window.addEventListener('error',e=>track('js_error',{msg:String(e.message).slice(0,200),src:String(e.filename||'').split('/').pop(),line:e.lineno}));
 window.addEventListener('unhandledrejection',e=>track('js_error',{msg:String(e.reason).slice(0,200)}));
 
